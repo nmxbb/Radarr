@@ -30,7 +30,7 @@ namespace NzbDrone.Core.Datastore.Migration
             Alter.Table("Blacklist")
                  .AddColumn("Languages").AsString().NotNullable().WithDefaultValue("[]");
 
-            Execute.WithConnection(UpdateLanguage);
+            IfDatabase("sqlite").Execute.WithConnection(UpdateLanguage);
         }
 
         private void UpdateLanguage(IDbConnection conn, IDbTransaction tran)
@@ -41,7 +41,7 @@ namespace NzbDrone.Core.Datastore.Migration
             using (IDbCommand getProfileCmd = conn.CreateCommand())
             {
                 getProfileCmd.Transaction = tran;
-                getProfileCmd.CommandText = "SELECT Id, Language FROM Profiles";
+                getProfileCmd.CommandText = "SELECT \"Id\", \"Language\" FROM \"Profiles\"";
 
                 IDataReader profilesReader = getProfileCmd.ExecuteReader();
                 while (profilesReader.Read())
@@ -66,7 +66,7 @@ namespace NzbDrone.Core.Datastore.Migration
             using (IDbCommand getSeriesCmd = conn.CreateCommand())
             {
                 getSeriesCmd.Transaction = tran;
-                getSeriesCmd.CommandText = @"SELECT Id, ProfileId FROM Movies";
+                getSeriesCmd.CommandText = @"SELECT ""Id"", ""ProfileId"" FROM ""Movies""";
                 using (IDataReader moviesReader = getSeriesCmd.ExecuteReader())
                 {
                     while (moviesReader.Read())
@@ -85,7 +85,7 @@ namespace NzbDrone.Core.Datastore.Migration
             using (IDbCommand getSeriesCmd = conn.CreateCommand())
             {
                 getSeriesCmd.Transaction = tran;
-                getSeriesCmd.CommandText = @"SELECT Id, MovieId, SceneName, MediaInfo FROM MovieFiles";
+                getSeriesCmd.CommandText = @"SELECT ""Id"", ""MovieId"", ""SceneName"", ""MediaInfo"" FROM ""MovieFiles""";
                 using (IDataReader movieFilesReader = getSeriesCmd.ExecuteReader())
                 {
                     while (movieFilesReader.Read())
@@ -133,7 +133,7 @@ namespace NzbDrone.Core.Datastore.Migration
             using (IDbCommand getSeriesCmd = conn.CreateCommand())
             {
                 getSeriesCmd.Transaction = tran;
-                getSeriesCmd.CommandText = @"SELECT Id, SourceTitle, MovieId FROM History";
+                getSeriesCmd.CommandText = @"SELECT ""Id"", ""SourceTitle"", ""MovieId"" FROM ""History""";
                 using (IDataReader historyReader = getSeriesCmd.ExecuteReader())
                 {
                     while (historyReader.Read())
@@ -168,7 +168,7 @@ namespace NzbDrone.Core.Datastore.Migration
             using (IDbCommand getSeriesCmd = conn.CreateCommand())
             {
                 getSeriesCmd.Transaction = tran;
-                getSeriesCmd.CommandText = @"SELECT Id, SourceTitle, MovieId FROM Blacklist";
+                getSeriesCmd.CommandText = @"SELECT ""Id"", ""SourceTitle"", ""MovieId"" FROM ""Blacklist""";
                 using (IDataReader blacklistReader = getSeriesCmd.ExecuteReader())
                 {
                     while (blacklistReader.Read())
@@ -202,7 +202,7 @@ namespace NzbDrone.Core.Datastore.Migration
                 using (IDbCommand updateMovieFilesCmd = conn.CreateCommand())
                 {
                     updateMovieFilesCmd.Transaction = tran;
-                    updateMovieFilesCmd.CommandText = $"UPDATE MovieFiles SET Languages = ? WHERE Id IN ({movieFileIds})";
+                    updateMovieFilesCmd.CommandText = $"UPDATE \"MovieFiles\" SET \"Languages\" = ? WHERE \"Id\" IN ({movieFileIds})";
                     var param = updateMovieFilesCmd.CreateParameter();
                     languageConverter.SetValue(param, languages);
                     updateMovieFilesCmd.Parameters.Add(param);
@@ -220,7 +220,7 @@ namespace NzbDrone.Core.Datastore.Migration
                 using (IDbCommand updateHistoryCmd = conn.CreateCommand())
                 {
                     updateHistoryCmd.Transaction = tran;
-                    updateHistoryCmd.CommandText = $"UPDATE History SET Languages = ? WHERE Id IN ({historyIds})";
+                    updateHistoryCmd.CommandText = $"UPDATE \"History\" SET \"Languages\" = ? WHERE \"Id\" IN ({historyIds})";
                     var param = updateHistoryCmd.CreateParameter();
                     languageConverter.SetValue(param, languages);
                     updateHistoryCmd.Parameters.Add(param);
@@ -238,7 +238,7 @@ namespace NzbDrone.Core.Datastore.Migration
                 using (IDbCommand updateBlacklistCmd = conn.CreateCommand())
                 {
                     updateBlacklistCmd.Transaction = tran;
-                    updateBlacklistCmd.CommandText = $"UPDATE Blacklist SET Languages = ? WHERE Id IN ({blacklistIds})";
+                    updateBlacklistCmd.CommandText = $"UPDATE \"Blacklist\" SET \"Languages\" = ? WHERE \"Id\" IN ({blacklistIds})";
                     var param = updateBlacklistCmd.CreateParameter();
                     languageConverter.SetValue(param, languages);
                     updateBlacklistCmd.Parameters.Add(param);

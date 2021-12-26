@@ -20,7 +20,7 @@ namespace NzbDrone.Core.Datastore
 
         public static SqlBuilder Select(this SqlBuilder builder, params Type[] types)
         {
-            return builder.Select(types.Select(x => TableMapping.Mapper.TableNameMapping(x) + ".*").Join(", "));
+            return builder.Select(types.Select(x => $"\"{TableMapping.Mapper.TableNameMapping(x)}\".*").Join(", "));
         }
 
         public static SqlBuilder SelectDistinct(this SqlBuilder builder, params Type[] types)
@@ -47,6 +47,13 @@ namespace NzbDrone.Core.Datastore
             return builder.Where(wb.ToString(), wb.Parameters);
         }
 
+        public static SqlBuilder WherePostgres<TModel>(this SqlBuilder builder, Expression<Func<TModel, bool>> filter)
+        {
+            var wb = new WhereBuilderPostgres(filter, true, builder.Sequence);
+
+            return builder.Where(wb.ToString(), wb.Parameters);
+        }
+
         public static SqlBuilder OrWhere<TModel>(this SqlBuilder builder, Expression<Func<TModel, bool>> filter)
         {
             var wb = new WhereBuilder(filter, true, builder.Sequence);
@@ -60,7 +67,7 @@ namespace NzbDrone.Core.Datastore
 
             var rightTable = TableMapping.Mapper.TableNameMapping(typeof(TRight));
 
-            return builder.Join($"{rightTable} ON {wb.ToString()}");
+            return builder.Join($"\"{rightTable}\" ON {wb.ToString()}");
         }
 
         public static SqlBuilder LeftJoin<TLeft, TRight>(this SqlBuilder builder, Expression<Func<TLeft, TRight, bool>> filter)
@@ -69,14 +76,14 @@ namespace NzbDrone.Core.Datastore
 
             var rightTable = TableMapping.Mapper.TableNameMapping(typeof(TRight));
 
-            return builder.LeftJoin($"{rightTable} ON {wb.ToString()}");
+            return builder.LeftJoin($"\"{rightTable}\" ON {wb.ToString()}");
         }
 
         public static SqlBuilder GroupBy<TModel>(this SqlBuilder builder, Expression<Func<TModel, object>> property)
         {
             var table = TableMapping.Mapper.TableNameMapping(typeof(TModel));
             var propName = property.GetMemberName().Name;
-            return builder.GroupBy($"{table}.{propName}");
+            return builder.GroupBy($"\"{table}\".\"{propName}\"");
         }
 
         public static SqlBuilder.Template AddSelectTemplate(this SqlBuilder builder, Type type)

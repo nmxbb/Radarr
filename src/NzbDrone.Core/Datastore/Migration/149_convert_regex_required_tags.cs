@@ -82,7 +82,7 @@ namespace NzbDrone.Core.Datastore.Migration
                 using (var updateProfileCmd = _connection.CreateCommand())
                 {
                     updateProfileCmd.Transaction = _transaction;
-                    updateProfileCmd.CommandText = "UPDATE CustomFormats SET Name = ?, FormatTags = ? WHERE Id = ?";
+                    updateProfileCmd.CommandText = "UPDATE \"CustomFormats\" SET \"Name\" = ?, \"FormatTags\" = ? WHERE \"Id\" = ?";
                     updateProfileCmd.AddParameter(profile.Name);
                     updateProfileCmd.AddParameter(profile.FormatTags.ToJson());
                     updateProfileCmd.AddParameter(profile.Id);
@@ -119,7 +119,7 @@ namespace NzbDrone.Core.Datastore.Migration
             using (var getProfilesCmd = _connection.CreateCommand())
             {
                 getProfilesCmd.Transaction = _transaction;
-                getProfilesCmd.CommandText = @"SELECT Id, Name, FormatTags FROM CustomFormats";
+                getProfilesCmd.CommandText = @"SELECT ""Id"", ""Name"", ""FormatTags"" FROM ""CustomFormats""";
 
                 using (var profileReader = getProfilesCmd.ExecuteReader())
                 {

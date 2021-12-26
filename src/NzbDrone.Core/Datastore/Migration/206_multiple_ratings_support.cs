@@ -28,11 +28,11 @@ namespace NzbDrone.Core.Datastore.Migration
 
         protected override void MainDbUpgrade()
         {
-            Execute.Sql("UPDATE CustomFilters SET Filters = Replace(Filters, 'ratings', 'tmdbRating') WHERE Type = 'discoverMovie';");
-            Execute.Sql("UPDATE CustomFilters SET Filters = Replace(Filters, 'ratings', 'tmdbRating') WHERE Type = 'movieIndex';");
+            IfDatabase("sqlite").Execute.Sql("UPDATE CustomFilters SET Filters = Replace(Filters, 'ratings', 'tmdbRating') WHERE Type = 'discoverMovie';");
+            IfDatabase("sqlite").Execute.Sql("UPDATE CustomFilters SET Filters = Replace(Filters, 'ratings', 'tmdbRating') WHERE Type = 'movieIndex';");
 
-            Execute.WithConnection((conn, tran) => FixRatings(conn, tran, "Movies"));
-            Execute.WithConnection((conn, tran) => FixRatings(conn, tran, "ImportListMovies"));
+            IfDatabase("sqlite").Execute.WithConnection((conn, tran) => FixRatings(conn, tran, "Movies"));
+            IfDatabase("sqlite").Execute.WithConnection((conn, tran) => FixRatings(conn, tran, "ImportListMovies"));
         }
 
         private void FixRatings(IDbConnection conn, IDbTransaction tran, string table)
