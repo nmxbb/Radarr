@@ -9,7 +9,7 @@ using Dapper;
 
 namespace NzbDrone.Core.Datastore
 {
-    public class WhereBuilderPostgres : WhereBuilder
+    public class WhereBuilderSqlite : WhereBuilder
     {
         protected StringBuilder _sb;
 
@@ -19,7 +19,7 @@ namespace NzbDrone.Core.Datastore
         private int _paramCount = 0;
         private bool _gotConcreteValue = false;
 
-        public WhereBuilderPostgres(Expression filter, bool requireConcreteValue, int seq)
+        public WhereBuilderSqlite(Expression filter, bool requireConcreteValue, int seq)
         {
             _paramNamePrefix = string.Format("Clause{0}", seq + 1);
             _requireConcreteValue = requireConcreteValue;
@@ -91,7 +91,7 @@ namespace NzbDrone.Core.Datastore
             // Only use the SQL condition if the expression didn't resolve to an actual value
             if (tableName != null && !gotValue)
             {
-                _sb.Append($"\"{tableName}\".\"{expression.Member.Name.ToLower()}\"");
+                _sb.Append($"\"{tableName}\".\"{expression.Member.Name}\"");
             }
             else
             {
@@ -311,11 +311,24 @@ namespace NzbDrone.Core.Datastore
 
             Visit(item);
 
-            _sb.Append(" = ANY (");
+            _sb.Append(" IN ");
 
-            Visit(list);
+            // hardcode the integer list if it exists to bypass parameter limit
+            if (item.Type == typeof(int) && TryGetRightValue(list, out var value))
+            {
+                var items = (IEnumerable<int>)value;
+                _sb.Append('(');
+                _sb.Append(string.Join(", ", items));
+                _sb.Append(')');
 
-            _sb.Append("))");
+                _gotConcreteValue = true;
+            }
+            else
+            {
+                Visit(list);
+            }
+
+            _sb.Append(')');
         }
 
         private void ParseStringContains(MethodCallExpression body)

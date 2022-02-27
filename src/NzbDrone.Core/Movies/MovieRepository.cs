@@ -49,7 +49,7 @@ namespace NzbDrone.Core.Movies
             _alternativeTitleRepository = alternativeTitleRepository;
         }
 
-        protected override SqlBuilder Builder() => new SqlBuilder()
+        protected override SqlBuilder Builder() => new SqlBuilder(_database.DatabaseType)
             .Join<Movie, Profile>((m, p) => m.ProfileId == p.Id)
             .LeftJoin<Movie, AlternativeTitle>((m, t) => m.Id == t.MovieId)
             .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId);
@@ -94,7 +94,7 @@ namespace NzbDrone.Core.Movies
         {
             // the skips the join on profile and alternative title and populates manually
             // to avoid repeatedly deserializing the same profile / movie
-            var builder = new SqlBuilder()
+            var builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.MovieFileId == f.Id);
 
             var profiles = _profileRepository.All().ToDictionary(x => x.Id);
@@ -146,7 +146,7 @@ namespace NzbDrone.Core.Movies
 
             if (_database.DatabaseType == DatabaseType.PostgreSQL)
             {
-                builder = new SqlBuilder()
+                builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<Movie, AlternativeTitle>((m, t) => m.Id == t.MovieId)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId)
                 .LeftJoin<Movie, MovieTranslation>((m, tr) => m.Id == tr.MovieId)
@@ -155,7 +155,7 @@ namespace NzbDrone.Core.Movies
             }
             else
             {
-                builder = new SqlBuilder()
+                builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<Movie, AlternativeTitle>((m, t) => m.Id == t.MovieId)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId)
                 .LeftJoin<Movie, MovieTranslation>((m, tr) => m.Id == tr.MovieId)
@@ -178,7 +178,7 @@ namespace NzbDrone.Core.Movies
 
             if (_database.DatabaseType == DatabaseType.PostgreSQL)
             {
-                builder = new SqlBuilder()
+                builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<Movie, Profile>((m, p) => m.ProfileId == p.Id)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId)
                 .LeftJoin<Movie, MovieTranslation>((m, tr) => m.Id == tr.MovieId)
@@ -187,7 +187,7 @@ namespace NzbDrone.Core.Movies
             }
             else
             {
-                builder = new SqlBuilder()
+                builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<AlternativeTitle, Movie>((t, m) => t.MovieId == m.Id)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId)
                 .LeftJoin<Movie, MovieTranslation>((m, tr) => m.Id == tr.MovieId)
@@ -214,7 +214,7 @@ namespace NzbDrone.Core.Movies
 
             if (_database.DatabaseType == DatabaseType.PostgreSQL)
             {
-                builder = new SqlBuilder()
+                builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<Movie, Profile>((m, p) => m.ProfileId == p.Id)
                 .LeftJoin<Movie, AlternativeTitle>((m, t) => m.Id == t.MovieId)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId)
@@ -223,7 +223,7 @@ namespace NzbDrone.Core.Movies
             }
             else
             {
-                builder = new SqlBuilder()
+                builder = new SqlBuilder(_database.DatabaseType)
                 .LeftJoin<MovieTranslation, Movie>((tr, m) => tr.MovieId == m.Id)
                 .LeftJoin<Movie, AlternativeTitle>((m, t) => m.Id == t.MovieId)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId)
