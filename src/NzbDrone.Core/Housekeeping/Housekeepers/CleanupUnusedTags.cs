@@ -25,20 +25,22 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
                 .Distinct()
                 .ToList();
 
-            if (!usedTags.Any())
+            if (usedTags.Any())
             {
-                return;
-            }
+                var usedTagsList = usedTags.Select(d => d.ToString()).Join(",");
 
-            var usedTagsList = usedTags.Select(d => d.ToString()).Join(",");
-
-            if (_database.DatabaseType == DatabaseType.PostgreSQL)
-            {
-                mapper.Execute($"DELETE FROM \"Tags\" WHERE NOT \"Id\" = ANY ({usedTagsList})");
+                if (_database.DatabaseType == DatabaseType.PostgreSQL)
+                {
+                    mapper.Execute($"DELETE FROM \"Tags\" WHERE NOT \"Id\" = ANY ({usedTagsList})");
+                }
+                else
+                {
+                    mapper.Execute($"DELETE FROM \"Tags\" WHERE NOT \"Id\" IN ({usedTagsList})");
+                }
             }
             else
             {
-                mapper.Execute($"DELETE FROM \"Tags\" WHERE NOT \"Id\" IN ({usedTagsList})");
+                mapper.Execute("DELETE FROM \"Tags\"");
             }
         }
 
