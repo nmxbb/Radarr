@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using NLog;
+using NzbDrone.Common.EnvironmentInfo;
 
 namespace NzbDrone.Update.UpdateEngine
 {
@@ -22,7 +23,16 @@ namespace NzbDrone.Update.UpdateEngine
         {
             try
             {
-                var targetExecutable = Path.Combine(targetFolder, "Radarr.exe");
+                string targetExecutable;
+
+                if (OsInfo.IsWindows)
+                {
+                    targetExecutable = Path.Combine(targetFolder, "Radarr.exe");
+                }
+                else
+                {
+                    targetExecutable = Path.Combine(targetFolder, "Radarr");
+                }
 
                 if (File.Exists(targetExecutable))
                 {
